@@ -1,9 +1,8 @@
-const { createClient } = require('@supabase/supabase-js')
-require('dotenv').config()
+import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
-)
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY // backend must use service_role
 
-module.exports = supabase
+if (!supabaseKey) throw new Error("supabaseKey is required.")
+
+export const supabase = createClient(supabaseUrl, supabaseKey)
