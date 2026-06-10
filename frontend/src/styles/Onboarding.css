@@ -1,0 +1,212 @@
+.onboarding-container {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: #0f0f1a;
+}
+
+.onboarding-card {
+  background: #1a1a2e;
+  padding: 48px 36px;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  border: 1px solid #2a2a3e;
+}
+
+.onboarding-header {
+  margin-bottom: 40px;
+}
+
+.progress-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.progress-step {
+  flex: 1;
+  height: 6px;
+  background: #2a2a3e;
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.progress-step.active {
+  background: #f5a623;
+  box-shadow: 0 0 12px rgba(245, 166, 35, 0.4);
+}
+
+.onboarding-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 0 0 12px 0;
+  line-height: 1.2;
+}
+
+.onboarding-subtitle {
+  font-size: 1rem;
+  color: #888;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.onboarding-step {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.onboarding-step textarea {
+  min-height: 140px;
+  resize: none;
+  padding: 16px;
+  background: #0f0f1a;
+  border: 1px solid #2a2a3e;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: #fff;
+  transition: border 0.2s;
+}
+
+.onboarding-step textarea:focus {
+  outline: none;
+  border-color: #f5a623;
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.1);
+}
+
+.onboarding-step textarea::placeholder {
+  color: #555;
+}
+
+.onboarding-step select {
+  padding: 16px;
+  background: #0f0f1a;
+  border: 1px solid #2a2a3e;
+  border-radius: 12px;
+  font-size: 1rem;
+  color: #fff;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23aaa' viewBox='0 0 20 20'%3E%3Cpath d='M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 20px;
+  padding-right: 48px;
+  cursor: pointer;
+}
+
+.onboarding-step select:focus {
+  outline: none;
+  border-color: #f5a623;
+}
+
+.travel-style-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.style-option {
+  padding: 20px 16px;
+  border: 2px solid #2a2a3e;
+  border-radius: 16px;
+  background: #0f0f1a;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.style-option:hover {
+  border-color: #f5a623;
+  background: rgba(245, 166, 35, 0.05);
+  transform: translateY(-2px);
+}
+
+.style-option.selected {
+  border-color: #f5a623;
+  background: rgba(245, 166, 35, 0.1);
+  box-shadow: 0 0 20px rgba(245, 166, 35, 0.2);
+}
+
+.style-option p {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: #fff;
+}
+
+.style-option.selected p {
+  color: #f5a623;
+}
+
+.onboarding-btn {
+  width: 100%;
+  padding: 16px;
+  background: #f5a623;
+  color: #000;
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+
+.onboarding-btn:hover {
+  background: #ffb84d;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(245, 166, 35, 0.3);
+}
+
+.onboarding-btn:active {
+  transform: translateY(0);
+}
+
+.onboarding-complete {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.complete-icon {
+  font-size: 5rem;
+  margin-bottom: 24px;
+  animation: bounce 0.6s ease;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+.complete-text {
+  color: #aaa;
+  margin-bottom: 32px;
+  font-size: 1rem;
+  line-height: 1.6;
+}

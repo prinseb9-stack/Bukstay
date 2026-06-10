@@ -1,0 +1,307 @@
+.host-bookings-container {
+  min-height: calc(100vh - 60px);
+  background: #f9fafb;
+  padding: 24px 0 40px;
+}
+
+.bookings-wrapper {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.bookings-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 24px 0;
+}
+
+.bookings-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #6b7280;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover {
+  border-color: #ff385c;
+}
+
+.tab-btn.active {
+  background: #ff385c;
+  color: #fff;
+  border-color: #ff385c;
+}
+
+.tab-count {
+  background: rgba(0,0,0,0.1);
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  min-width: 20px;
+  text-align: center;
+}
+
+.tab-btn.active.tab-count {
+  background: rgba(255,255,255,0.3);
+}
+
+.bookings-table-wrapper {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.bookings-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bookings-table thead {
+  background: #f9fafb;
+}
+
+.bookings-table th {
+  text-align: left;
+  padding: 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bookings-table td {
+  padding: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.guest-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.guest-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.guest-name {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.property-cell {
+  color: #4b5563;
+}
+
+.dates-cell {
+  color: #4b5563;
+  font-size: 0.875rem;
+}
+
+.guests-cell {
+  color: #4b5563;
+  text-align: center;
+}
+
+.amount-cell {
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.status-confirmed {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-completed {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.status-cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.bookings-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.booking-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.booking-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.guest-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.guest-info.guest-avatar {
+  width: 48px;
+  height: 48px;
+}
+
+.guest-info.guest-name {
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.property-name {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.booking-card-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.booking-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.detail-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.detail-value.amount {
+  color: #ff385c;
+  font-size: 1rem;
+}
+
+.bookings-empty {
+  text-align: center;
+  padding: 60px 20px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+}
+
+.bookings-empty h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.bookings-empty p {
+  color: #6b7280;
+  margin: 0;
+}
+
+.bookings-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #ff385c;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.desktop-only {
+  display: none;
+}
+
+.mobile-only {
+  display: block;
+}
+
+@media (min-width: 768px) {
+ .desktop-only {
+    display: block;
+  }
+
+ .mobile-only {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+ .bookings-wrapper {
+    padding: 0 24px;
+  }
+}

@@ -1,0 +1,146 @@
+.navbar {
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+}
+
+.nav-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 16px;
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ff385c;
+  text-decoration: none;
+}
+
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  z-index: 1001;
+}
+
+.hamburger span {
+  width: 24px;
+  height: 2px;
+  background: #1f2937;
+  transition: all 0.3s ease;
+}
+
+.hamburger.active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -6px);
+}
+
+.nav-menu {
+  position: fixed;
+  top: 60px;
+  right: -100%;
+  width: 100%;
+  height: calc(100vh - 60px);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  gap: 4px;
+  transition: right 0.3s ease;
+  overflow-y: auto;
+}
+
+.nav-menu.active {
+  right: 0;
+}
+
+.nav-link {
+  padding: 14px 16px;
+  text-decoration: none;
+  color: #1f2937;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.2s;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+
+.nav-link:hover {
+  background: #f3f4f6;
+}
+
+.nav-register {
+  background: #ff385c;
+  color: #fff;
+  margin-top: 8px;
+}
+
+.nav-register:hover {
+  background: #e31c5f;
+}
+
+.nav-logout {
+  color: #dc2626;
+  margin-top: 8px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 18px;
+}
+
+@media (min-width: 768px) {
+  .hamburger {
+    display: none;
+  }
+
+  .nav-menu {
+    position: static;
+    width: auto;
+    height: auto;
+    flex-direction: row;
+    padding: 0;
+    gap: 8px;
+    align-items: center;
+    overflow: visible;
+  }
+
+  .nav-link {
+    width: auto;
+    padding: 8px 16px;
+  }
+
+  .nav-register {
+    margin-top: 0;
+    margin-left: 8px;
+  }
+
+  .nav-logout {
+    margin-top: 0;
+    border-top: none;
+    padding-top: 8px;
+    border-left: 1px solid #e5e7eb;
+    padding-left: 16px;
+    margin-left: 8px;
+  }
+}

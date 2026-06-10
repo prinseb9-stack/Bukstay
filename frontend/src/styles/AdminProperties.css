@@ -1,0 +1,29 @@
+.table-loader,
+.table-error,
+.table-empty {
+  padding: 60px 20px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.9375rem;
+}
+
+.table-error p {
+  color: #ef4444;
+  margin: 0 0 16px 0;
+  font-weight: 600;
+}
+
+.table-error button {
+  padding: 10px 20px;
+  background: #ff385c;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.table-error button:hover {
+  background: #e31c5f;
+}

@@ -1,0 +1,167 @@
+.admin-container {
+  min-height: 100vh;
+  background: #f9fafb;
+  padding: 24px;
+}
+
+.admin-wrapper {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.admin-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.admin-subtitle {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0 0 32px 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 8px 0;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.stat-change {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.stat-change.blue { color: #3b82f6; }
+.stat-change.green { color: #10b981; }
+.stat-change.orange { color: #ff385c; }
+.stat-change.purple { color: #8b5cf6; }
+
+.admin-content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.content-card {
+  background: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+}
+
+.content-card h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 16px 0;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.activity-item {
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.activity-info {
+  flex: 1;
+}
+
+.activity-action {
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.activity-name {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.activity-time {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.actions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.action-btn {
+  width: 100%;
+  padding: 12px;
+  background: #f3f4f6;
+  color: #1f2937;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.action-btn:hover {
+  background: #e5e7eb;
+}
+
+.action-btn.primary {
+  background: #ff385c;
+  color: #fff;
+}
+
+.action-btn.primary:hover {
+  background: #e31c5f;
+}
+
+@media (min-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-content-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+@media (min-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
