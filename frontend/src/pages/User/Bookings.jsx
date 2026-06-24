@@ -1,41 +1,57 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext'
+import { useGeoCurrency } from '../../hooks/useGeo'
+import { collection, query, where, getDocs, orderBy } from 'firebase/firestore'
+import { db } from '../../lib/firebase'
 import { Calendar, MapPin } from 'lucide-react'
-import api from '../../services/api'
-import '../../styles/TravellerBookings.css'
+import '../../styles/UserBookings.css'
 
 const tabs = ['Upcoming', 'Past', 'Cancelled']
 
-export default function Bookings() {
+export default function UserBookings() {
+  const { user, userProfile } = useAuth()
+  const navigate = useNavigate()
+  const { formatPrice } = useGeoCurrency()
   const [activeTab, setActiveTab] = useState('Upcoming')
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
   const [filteredBookings, setFilteredBookings] = useState([])
 
   useEffect(() => {
+    if (!user) return
+    
+    const fetchBookings = async () => {
+      try {
+        setLoading(true)
+        
+        const bookingsQuery = query(
+          collection(db, 'bookings'),
+          where('travellerId', '==', user.uid),
+          orderBy('createdAt', 'desc')
+        )
+        const bookingsSnap = await getDocs(bookingsQuery)
+        const bookingsData = bookingsSnap.docs.map(doc => ({ 
+          id: doc.id, 
+          ...doc.data() 
+        }))
+        
+        setBookings(bookingsData)
+      } catch (err) {
+        console.error('Failed to load bookings:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
     fetchBookings()
-  }, [])
+  }, [user])
 
   useEffect(() => {
-    filterBookings()
-  }, [activeTab, bookings])
-
-  const fetchBookings = async () => {
-    try {
-      setLoading(true)
-      const res = await api.get('/api/traveller/bookings')
-      setBookings(res.data)
-    } catch (err) {
-      console.error('Failed to load bookings:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const filterBookings = () => {
     const now = new Date()
     const filtered = bookings.filter((booking) => {
-      const checkOut = new Date(booking.check_out)
-      const checkIn = new Date(booking.check_in)
+      const checkOut = new Date(booking.checkOut)
+      const checkIn = new Date(booking.checkIn)
 
       if (activeTab === 'Upcoming') {
         return checkIn >= now && booking.status !== 'cancelled'
@@ -49,13 +65,13 @@ export default function Bookings() {
       return true
     })
     setFilteredBookings(filtered)
-  }
+  }, [activeTab, bookings])
 
   const getTabCount = (tab) => {
     const now = new Date()
     return bookings.filter(b => {
-      const checkOut = new Date(b.check_out)
-      const checkIn = new Date(b.check_in)
+      const checkOut = new Date(b.checkOut)
+      const checkIn = new Date(b.checkIn)
       if (tab === 'Upcoming') return checkIn >= now && b.status !== 'cancelled'
       if (tab === 'Past') return checkOut < now && b.status === 'completed'
       if (tab === 'Cancelled') return b.status === 'cancelled'
@@ -108,7 +124,7 @@ export default function Bookings() {
             {activeTab === 'Upcoming' && (
               <button 
                 className="explore-btn"
-                onClick={() => window.location.href = '/discover'}
+                onClick={() => navigate('/discover')}
               >
                 Explore Stays
               </button>
@@ -119,17 +135,17 @@ export default function Bookings() {
             {filteredBookings.map((booking) => (
               <div key={booking.id} className="booking-card">
                 <img 
-                  src={booking.property_image || 'https://placehold.co/200x200'} 
-                  alt={booking.property_title}
+                  src={booking.propertyImage || 'https://via.placeholder.com/200x200'} 
+                  alt={booking.propertyName}
                   className="booking-image"
                 />
                 <div className="booking-content">
                   <div className="booking-header">
                     <div className="booking-info">
-                      <h3 className="booking-property">{booking.property_title}</h3>
+                      <h3 className="booking-property">{booking.propertyName}</h3>
                       <p className="booking-location">
                         <MapPin size={14} />
-                        {booking.city}, {booking.country}
+                        {booking.city || 'City'}, {booking.country || 'Country'}
                       </p>
                     </div>
                     <span className={`booking-status status-${booking.status}`}>
@@ -140,13 +156,13 @@ export default function Bookings() {
                   <div className="booking-dates">
                     <Calendar size={16} />
                     <span>
-                      {new Date(booking.check_in).toLocaleDateString('en-US', { 
+                      {new Date(booking.checkIn).toLocaleDateString('en-US', { 
                         month: 'short', 
                         day: 'numeric', 
                         year: 'numeric' 
                       })}
                       {' → '}
-                      {new Date(booking.check_out).toLocaleDateString('en-US', { 
+                      {new Date(booking.checkOut).toLocaleDateString('en-US', { 
                         month: 'short', 
                         day: 'numeric', 
                         year: 'numeric' 
@@ -157,7 +173,9 @@ export default function Bookings() {
                   <div className="booking-footer">
                     <div className="booking-price">
                       <span className="price-label">Total</span>
-                      <span className="price-amount">₦{booking.total_price?.toLocaleString()}</span>
+                      <span className="price-amount">
+                        {formatPrice(booking.totalPrice)}
+                      </span>
                     </div>
                     <div className="booking-guests">
                       {booking.guests} {booking.guests === 1 ? 'guest' : 'guests'}

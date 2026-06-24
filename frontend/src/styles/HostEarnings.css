@@ -1,7 +1,10 @@
+/* ===== HOST EARNINGS ===== */
+
 .host-earnings-container {
-  min-height: calc(100vh - 60px);
-  background: #f9fafb;
+  min-height: 100vh;
+  background: var(--bg-primary);
   padding: 24px 0 40px;
+  transition: background 0.3s ease;
 }
 
 .earnings-wrapper {
@@ -11,12 +14,14 @@
 }
 
 .earnings-title {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #1f2937;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-primary);
   margin: 0 0 32px 0;
+  letter-spacing: -0.5px;
 }
 
+/* Stats */
 .earnings-stats-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -25,35 +30,36 @@
 }
 
 .earnings-card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
   padding: 24px;
   display: flex;
   gap: 16px;
+  transition: all 0.2s;
 }
 
 .earnings-card.primary {
-  background: linear-gradient(135deg, #ff385c 0%, #e31c5f 100%);
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-hover) 100%);
   border: none;
-  color: #fff;
+  color: #000;
 }
 
 .card-icon {
   width: 48px;
   height: 48px;
-  background: #f3f4f6;
-  border-radius: 10px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ff385c;
+  color: var(--brand);
   flex-shrink: 0;
 }
 
 .earnings-card.primary .card-icon {
-  background: rgba(255,255,255,0.2);
-  color: #fff;
+  background: rgba(0, 0, 0, 0.15);
+  color: #000;
 }
 
 .card-content {
@@ -61,42 +67,46 @@
 }
 
 .card-label {
-  font-size: 0.875rem;
-  color: #6b7280;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
   margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-weight: 600;
 }
 
 .earnings-card.primary .card-label {
-  color: rgba(255,255,255,0.8);
+  color: rgba(0, 0, 0, 0.7);
 }
 
 .card-value {
   font-size: 1.75rem;
-  font-weight: 700;
-  color: #1f2937;
+  font-weight: 800;
+  color: var(--text-primary);
   margin: 0 0 8px 0;
 }
 
 .earnings-card.primary .card-value {
-  color: #fff;
+  color: #000;
 }
 
 .card-change {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
   margin: 0;
 }
 
-.card-change.positive {
-  color: #10b981;
-}
-
+/* Withdraw */
 .withdraw-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   margin-top: 12px;
   padding: 10px 20px;
-  background: rgba(255,255,255,0.2);
-  color: #fff;
+  background: rgba(0, 0, 0, 0.1);
+  color: #000;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-weight: 600;
   font-size: 0.875rem;
   cursor: pointer;
@@ -104,28 +114,30 @@
 }
 
 .withdraw-btn:hover {
-  background: rgba(255,255,255,0.3);
+  background: rgba(0, 0, 0, 0.2);
 }
 
+/* Content */
 .earnings-content-grid {
   display: grid;
   gap: 24px;
 }
 
 .earnings-section {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
   padding: 24px;
 }
 
 .section-title {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-primary);
   margin: 0 0 20px 0;
 }
 
+/* Lists */
 .property-earnings-list,
 .payout-list {
   display: flex;
@@ -133,88 +145,69 @@
   gap: 12px;
 }
 
-.property-earning-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  background: #f9fafb;
-  border-radius: 10px;
-  gap: 16px;
-}
-
-.earning-info {
-  flex: 1;
-}
-
-.earning-property {
-  font-weight: 600;
-  color: #1f2937;
-  margin: 0 0 4px 0;
-}
-
-.earning-bookings {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin: 0;
-}
-
-.earning-amount {
-  font-weight: 700;
-  color: #ff385c;
-  font-size: 1.125rem;
-  margin: 0;
-}
-
+.property-earning-item,
 .payout-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  background: #f9fafb;
-  border-radius: 10px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius);
   gap: 16px;
 }
 
+.earning-info,
 .payout-info {
   flex: 1;
 }
 
-.payout-amount {
-  font-weight: 700;
-  color: #1f2937;
+.earning-property {
+  font-weight: 600;
+  color: var(--text-primary);
   margin: 0 0 4px 0;
 }
 
+.earning-bookings,
 .payout-meta {
-  font-size: 0.875rem;
-  color: #6b7280;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
   margin: 0;
 }
 
+.earning-amount,
+.payout-amount {
+  font-weight: 700;
+  color: var(--brand);
+  font-size: 1.125rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* Status */
 .payout-status {
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius);
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: capitalize;
 }
 
 .status-paid {
-  background: #d1fae5;
-  color: #065f46;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
 }
 
 .status-pending {
-  background: #fef3c7;
-  color: #92400e;
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
 }
 
 .status-failed {
-  background: #fee2e2;
-  color: #991b1b;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
 }
 
+/* Empty */
 .empty-state {
   text-align: center;
   padding: 40px 20px;
@@ -222,143 +215,30 @@
 
 .empty-state p {
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text-primary);
   margin: 0 0 8px 0;
 }
 
 .empty-state span {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  z-index: 50;
-}
-
-.modal-content {
-  background: #fff;
-  border-radius: 16px;
-  padding: 24px;
-  max-width: 440px;
-  width: 100%;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.modal-header h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0;
-}
-
-.modal-close {
-  background: none;
-  border: none;
-  color: #6b7280;
-  cursor: pointer;
-  padding: 4px;
-}
-
-.modal-description {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin: 0 0 20px 0;
-  line-height: 1.5;
-}
-
-.available-balance {
-  background: #f3f4f6;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 20px;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 8px;
-}
-
-.form-group input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 1rem;
-  outline: none;
-}
-
-.form-group input:focus {
-  border-color: #ff385c;
-}
-
-.modal-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.btn-secondary {
-  padding: 12px;
-  background: #f3f4f6;
-  color: #1f2937;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-primary {
-  padding: 12px;
-  background: #ff385c;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-primary:disabled,
-.btn-secondary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
+/* Loader */
 .earnings-loader {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 400px;
-  text-align: center;
+  color: var(--text-secondary);
 }
 
-.spinner {
+.earnings-loader .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid #e5e7eb;
-  border-top-color: #ff385c;
+  border: 3px solid var(--border);
+  border-top-color: var(--brand);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin-bottom: 16px;
@@ -368,6 +248,7 @@
   to { transform: rotate(360deg); }
 }
 
+/* Responsive */
 @media (min-width: 640px) {
   .earnings-stats-grid {
     grid-template-columns: repeat(3, 1fr);
@@ -378,7 +259,6 @@
   .earnings-wrapper {
     padding: 0 24px;
   }
-
   .earnings-content-grid {
     grid-template-columns: repeat(2, 1fr);
   }

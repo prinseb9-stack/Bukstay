@@ -1,78 +1,151 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { collection, getDocs, query, where } from 'firebase/firestore'
+import { db } from '../../lib/firebase'
+import { useGeoCurrency } from '../../hooks/useGeo'
 import '../../styles/AdminDashboard.css'
-
-const stats = [
-  { label: 'Total Users', value: '12,450', change: '+8.2%', color: 'blue' },
-  { label: 'Active Properties', value: '3,280', change: '+5.1%', color: 'green' },
-  { label: 'Total Bookings', value: '8,921', change: '+12.4%', color: 'orange' },
-  { label: 'Revenue (MTD)', value: '₦45.2M', change: '+18.3%', color: 'purple' },
-]
-
-const recentActivity = [
-  { type: 'user', action: 'New host registered', name: 'Tunde Adebayo', time: '2 mins ago' },
-  { type: 'booking', action: 'Booking confirmed', name: '₦135,000 - Lekki Apartment', time: '15 mins ago' },
-  { type: 'property', action: 'Property approved', name: 'Beach Villa Victoria Island', time: '1 hour ago' },
-  { type: 'payout', action: 'Payout processed', name: '₦450,000 to host #4821', time: '3 hours ago' },
-]
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
+  const { formatPrice } = useGeoCurrency()
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalHosts: 0,
+    totalProperties: 0,
+    totalBookings: 0,
+    totalRevenue: 0,
+    pendingProperties: 0
+  })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const usersSnap = await getDocs(collection(db, 'users'))
+        const users = usersSnap.docs.map(doc => doc.data())
+        const hosts = users.filter(u => u.role === 'host')
+
+        const propsSnap = await getDocs(collection(db, 'properties'))
+        const properties = propsSnap.docs.map(doc => doc.data())
+        const pending = properties.filter(p => p.status === 'pending')
+
+        const bookingsSnap = await getDocs(collection(db, 'bookings'))
+        const bookings = bookingsSnap.docs.map(doc => doc.data())
+        
+        const revenue = bookings
+          .filter(b => b.status === 'completed')
+          .reduce((sum, b) => sum + (b.totalPrice || 0), 0)
+
+        setStats({
+          totalUsers: users.length,
+          totalHosts: hosts.length,
+          totalProperties: properties.length,
+          totalBookings: bookings.length,
+          totalRevenue: revenue,
+          pendingProperties: pending.length
+        })
+      } catch (err) {
+        console.error('Fetch stats error:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [])
+
+  const adminCards = [
+    {
+      icon: '👥',
+      title: 'Users',
+      count: stats.totalUsers,
+      subtext: `${stats.totalHosts} hosts`,
+      color: '#3b82f6',
+      path: '/admin-panel-2025/users'
+    },
+    {
+      icon: '🏠',
+      title: 'Properties',
+      count: stats.totalProperties,
+      subtext: `${stats.pendingProperties} pending approval`,
+      color: '#10b981',
+      path: '/admin-panel-2025/properties'
+    },
+    {
+      icon: '📅',
+      title: 'Bookings',
+      count: stats.totalBookings,
+      subtext: 'All reservations',
+      color: '#f59e0b',
+      path: '/admin-panel-2025/bookings'
+    },
+    {
+      icon: '💰',
+      title: 'Revenue',
+      count: formatPrice(stats.totalRevenue),
+      subtext: 'Total earned',
+      color: '#8b5cf6',
+      path: '/admin-panel-2025/payouts'
+    },
+    {
+      icon: '💸',
+      title: 'Payouts',
+      count: 'Manage',
+      subtext: 'Pay hosts',
+      color: '#ec4899',
+      path: '/admin-panel-2025/payouts'
+    },
+    {
+      icon: '⚠️',
+      title: 'Reports',
+      count: 'View',
+      subtext: 'Disputes & issues',
+      color: '#ef4444',
+      path: '/admin-panel-2025/payouts'
+    }
+  ]
+
+  if (loading) {
+    return <div className="admin-loading">Loading dashboard...</div>
+  }
 
   return (
-    <div className="admin-container">
-      <div className="admin-wrapper">
-        <h1 className="admin-title">Admin Dashboard</h1>
-        <p className="admin-subtitle">Platform overview and management</p>
+    <div className="admin-dashboard">
+      <div className="admin-header">
+        <h1>Admin Control Panel</h1>
+        <p>Manage BukStay platform</p>
+      </div>
 
-        <div className="stats-grid">
-          {stats.map(stat => (
-            <div key={stat.label} className="stat-card">
-              <p className="stat-label">{stat.label}</p>
-              <p className="stat-value">{stat.value}</p>
-              <p className={`stat-change ${stat.color}`}>{stat.change} vs last month</p>
+      <div className="admin-cards-grid">
+        {adminCards.map((card, i) => (
+          <div
+            key={i}
+            className="admin-card"
+            onClick={() => navigate(card.path)}
+            style={{ borderLeft: `4px solid ${card.color}` }}
+          >
+            <div className="admin-card-icon" style={{ background: `${card.color}20` }}>
+              {card.icon}
             </div>
-          ))}
-        </div>
-
-        <div className="admin-content-grid">
-          <div className="content-card activity-card">
-            <h2>Recent Activity</h2>
-            <div className="activity-list">
-              {recentActivity.map((activity, idx) => (
-                <div key={idx} className="activity-item">
-                  <div className="activity-info">
-                    <p className="activity-action">{activity.action}</p>
-                    <p className="activity-name">{activity.name}</p>
-                  </div>
-                  <span className="activity-time">{activity.time}</span>
-                </div>
-              ))}
+            <div className="admin-card-content">
+              <h3 className="admin-card-title">{card.title}</h3>
+              <p className="admin-card-count">{card.count}</p>
+              <p className="admin-card-subtext">{card.subtext}</p>
             </div>
+            <div className="admin-card-arrow">→</div>
           </div>
+        ))}
+      </div>
 
-          <div className="content-card">
-            <h2>Quick Actions</h2>
-            <div className="actions-list">
-              <button 
-                onClick={() => navigate('/admin/users')}
-                className="action-btn primary"
-              >
-                Manage Users
-              </button>
-              <button 
-                onClick={() => navigate('/admin/properties')}
-                className="action-btn"
-              >
-                Review Properties
-              </button>
-              <button 
-                onClick={() => navigate('/admin/payouts')}
-                className="action-btn"
-              >
-                Payout Requests
-              </button>
-            </div>
-          </div>
+      <div className="admin-quick-actions">
+        <h2>Quick Actions</h2>
+        <div className="quick-action-buttons">
+          <button onClick={() => navigate('/admin-panel-2025/properties')}>
+            Approve Properties ({stats.pendingProperties})
+          </button>
+          <button onClick={() => navigate('/admin-panel-2025/payouts')}>
+            Process Payouts
+          </button>
         </div>
       </div>
     </div>

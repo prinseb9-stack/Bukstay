@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
-import api from '../../services/api'
+import { collection, getDocs, query, where, updateDoc, doc } from 'firebase/firestore'
+import { db } from '../../lib/firebase'
+import { useGeoCurrency } from '../../hooks/useGeo'
 import '../../styles/AdminProperties.css'
 
 export default function AdminProperties() {
@@ -7,36 +9,68 @@ export default function AdminProperties() {
   const [filter, setFilter] = useState('all')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const { formatPrice } = useGeoCurrency()
 
   useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        let q = query(collection(db, 'properties'))
+        
+        if (filter !== 'all') {
+          const statusFilter = filter === 'approved' ? 'active' : filter
+          q = query(collection(db, 'properties'), where('status', '==', statusFilter))
+        }
+
+        const snap = await getDocs(q)
+        let propsData = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        
+        propsData.sort((a, b) => {
+          const aTime = a.createdAt?.seconds || new Date(a.createdAt).getTime() || 0
+          const bTime = b.createdAt?.seconds || new Date(b.createdAt).getTime() || 0
+          return bTime - aTime
+        })
+        
+        setProperties(propsData)
+      } catch (err) {
+        setError('Failed to load properties')
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
     fetchProperties()
   }, [filter])
 
-  const fetchProperties = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const params = filter!== 'all'? `?status=${filter}` : ''
-      const res = await api.get(`/api/admin/properties${params}`)
-      setProperties(res.data)
-    } catch (err) {
-      setError('Failed to load properties')
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const handleStatusUpdate = async (id, status) => {
     try {
-      await api.patch(`/api/admin/properties/${id}`, { status })
-      fetchProperties() // Refresh list
+      const newStatus = status === 'approved' ? 'active' : status
+      
+      await updateDoc(doc(db, 'properties', id), { 
+        status: newStatus,
+        updatedAt: new Date(),
+        ...(newStatus === 'active' && { approvedAt: new Date() }),
+        ...(newStatus === 'rejected' && { rejectedAt: new Date() })
+      })
+      // Refresh
+      const snap = await getDocs(query(collection(db, 'properties')))
+      let propsData = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      propsData.sort((a, b) => {
+        const aTime = a.createdAt?.seconds || new Date(a.createdAt).getTime() || 0
+        const bTime = b.createdAt?.seconds || new Date(b.createdAt).getTime() || 0
+        return bTime - aTime
+      })
+      setProperties(propsData)
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to update status')
+      alert('Failed to update status')
+      console.error(err)
     }
   }
 
-  const filtered = properties
+  const displayStatus = (status) => status === 'active' ? 'approved' : status
 
   return (
     <div className="admin-container">
@@ -48,7 +82,7 @@ export default function AdminProperties() {
               <button
                 key={s}
                 onClick={() => setFilter(s)}
-                className={`filter-tab ${filter === s? 'active' : ''}`}
+                className={`filter-tab ${filter === s ? 'active' : ''}`}
               >
                 {s.charAt(0).toUpperCase() + s.slice(1)}
               </button>
@@ -57,17 +91,15 @@ export default function AdminProperties() {
         </div>
 
         <div className="table-card">
-          {loading? (
+          {loading ? (
             <div className="table-loader">Loading properties...</div>
-          ) : error? (
+          ) : error ? (
             <div className="table-error">
               <p>{error}</p>
-              <button onClick={fetchProperties}>Retry</button>
+              <button onClick={() => setFilter(filter)}>Retry</button>
             </div>
-          ) : filtered.length === 0? (
-            <div className="table-empty">
-              <p>No properties found</p>
-            </div>
+          ) : properties.length === 0 ? (
+            <div className="table-empty"><p>No properties found</p></div>
           ) : (
             <div className="table-scroll">
               <table className="data-table">
@@ -77,42 +109,36 @@ export default function AdminProperties() {
                     <th>Host</th>
                     <th>Price/Night</th>
                     <th>Status</th>
-                    <th>Bookings</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map(prop => (
+                  {properties.map(prop => (
                     <tr key={prop.id}>
                       <td>
                         <div className="cell-stack">
-                          <p className="cell-primary">{prop.title}</p>
-                          <p className="cell-secondary">{prop.city}</p>
+                          <p className="cell-primary">{prop.title || prop.name}</p>
+                          <p className="cell-secondary">{prop.city || prop.location}</p>
                         </div>
                       </td>
-                      <td className="cell-text">{prop.host_name || prop.host}</td>
-                      <td className="cell-primary cell-bold">₦{prop.price?.toLocaleString()}</td>
+                      <td className="cell-text">{prop.hostName || prop.host_name || prop.hostId}</td>
+                      <td className="cell-primary cell-bold">
+                        {formatPrice(prop.pricePerNight || prop.price || 0)}
+                      </td>
                       <td>
                         <span className={`status-badge ${prop.status}`}>
-                          {prop.status}
+                          {displayStatus(prop.status)}
                         </span>
                       </td>
-                      <td className="cell-text">{prop.booking_count || prop.bookings || 0}</td>
                       <td>
                         <div className="action-buttons">
-                          {prop.status!== 'approved' && (
-                            <button
-                              className="action-link approve"
-                              onClick={() => handleStatusUpdate(prop.id, 'approved')}
-                            >
+                          {prop.status !== 'active' && (
+                            <button className="action-link approve" onClick={() => handleStatusUpdate(prop.id, 'approved')}>
                               Approve
                             </button>
                           )}
-                          {prop.status!== 'rejected' && (
-                            <button
-                              className="action-link reject"
-                              onClick={() => handleStatusUpdate(prop.id, 'rejected')}
-                            >
+                          {prop.status !== 'rejected' && (
+                            <button className="action-link reject" onClick={() => handleStatusUpdate(prop.id, 'rejected')}>
                               Reject
                             </button>
                           )}

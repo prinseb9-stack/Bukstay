@@ -1,29 +1,233 @@
+/* ===== ADMIN PROPERTIES ===== */
+
+.filter-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  background: var(--bg-secondary);
+  padding: 4px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.filter-tab {
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.filter-tab:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.filter-tab.active {
+  background: var(--brand);
+  color: #000;
+}
+
+/* Table */
+.table-card {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+.data-table thead {
+  background: var(--bg-tertiary);
+}
+
+.data-table th {
+  text-align: left;
+  padding: 14px 16px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.data-table tbody tr {
+  border-bottom: 1px solid var(--border-light);
+  transition: background 0.15s;
+}
+
+.data-table tbody tr:hover {
+  background: var(--bg-tertiary);
+}
+
+.data-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.data-table td {
+  padding: 16px;
+  font-size: 0.875rem;
+  vertical-align: middle;
+}
+
+.cell-primary {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.cell-secondary {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.cell-text {
+  color: var(--text-secondary);
+}
+
+.cell-bold {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.cell-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Status */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: capitalize;
+  display: inline-block;
+}
+
+.status-badge.pending {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.status-badge.active,
+.status-badge.approved {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.status-badge.rejected {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* Actions */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.action-link {
+  background: none;
+  border: none;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+
+.action-link:hover {
+  background: var(--bg-tertiary);
+}
+
+.action-link.approve {
+  color: var(--success);
+}
+
+.action-link.reject {
+  color: var(--error);
+}
+
+/* States */
 .table-loader,
 .table-error,
 .table-empty {
   padding: 60px 20px;
   text-align: center;
-  color: #6b7280;
-  font-size: 0.9375rem;
+  color: var(--text-secondary);
 }
 
 .table-error p {
-  color: #ef4444;
-  margin: 0 0 16px 0;
+  color: var(--error);
   font-weight: 600;
+  margin-bottom: 16px;
 }
 
 .table-error button {
   padding: 10px 20px;
-  background: #ff385c;
-  color: #fff;
+  background: var(--brand);
+  color: #000;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
 }
 
-.table-error button:hover {
-  background: #e31c5f;
+/* Mobile */
+@media (max-width: 768px) {
+  .filter-tabs {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .data-table thead {
+    display: none;
+  }
+
+  .data-table tbody tr {
+    display: block;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 12px;
+  }
+
+  .data-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border: none;
+    text-align: right;
+  }
+
+  .data-table td:before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    margin-right: 12px;
+    text-align: left;
+  }
 }

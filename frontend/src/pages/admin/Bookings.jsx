@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
-import api from '../../services/api'
+import { collection, getDocs, query, where, updateDoc, doc, serverTimestamp } from 'firebase/firestore'
+import { db } from '../../lib/firebase'
+import { useGeoCurrency } from '../../hooks/useGeo'
 import '../../styles/AdminBookings.css'
 
 export default function AdminBookings() {
@@ -7,41 +9,66 @@ export default function AdminBookings() {
   const [filter, setFilter] = useState('all')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const { formatPrice } = useGeoCurrency()
 
   useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        let q = query(collection(db, 'bookings'))
+        
+        if (filter !== 'all') {
+          q = query(collection(db, 'bookings'), where('status', '==', filter))
+        }
+
+        const snap = await getDocs(q)
+        let bookingsData = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        
+        bookingsData.sort((a, b) => {
+          const aTime = a.createdAt?.seconds || new Date(a.createdAt).getTime() || 0
+          const bTime = b.createdAt?.seconds || new Date(b.createdAt).getTime() || 0
+          return bTime - aTime
+        })
+        
+        setBookings(bookingsData)
+      } catch (err) {
+        setError('Failed to load bookings')
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
     fetchBookings()
   }, [filter])
 
-  const fetchBookings = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      const params = filter!== 'all'? `?status=${filter}` : ''
-      const res = await api.get(`/api/admin/bookings${params}`)
-      setBookings(res.data)
-    } catch (err) {
-      setError('Failed to load bookings')
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const handleStatusUpdate = async (id, status) => {
     try {
-      await api.patch(`/api/admin/bookings/${id}`, { status })
-      fetchBookings()
+      await updateDoc(doc(db, 'bookings', id), { 
+        status,
+        updatedAt: serverTimestamp()
+      })
+      // Refresh
+      const snap = await getDocs(query(collection(db, 'bookings')))
+      let bookingsData = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      bookingsData.sort((a, b) => {
+        const aTime = a.createdAt?.seconds || new Date(a.createdAt).getTime() || 0
+        const bTime = b.createdAt?.seconds || new Date(b.createdAt).getTime() || 0
+        return bTime - aTime
+      })
+      setBookings(bookingsData)
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to update booking')
+      alert('Failed to update booking')
+      console.error(err)
     }
   }
 
   const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    })
+    if (!date) return ''
+    const d = date.toDate ? date.toDate() : new Date(date)
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
   return (
@@ -54,7 +81,7 @@ export default function AdminBookings() {
               <button
                 key={s}
                 onClick={() => setFilter(s)}
-                className={`filter-tab ${filter === s? 'active' : ''}`}
+                className={`filter-tab ${filter === s ? 'active' : ''}`}
               >
                 {s.charAt(0).toUpperCase() + s.slice(1)}
               </button>
@@ -63,17 +90,15 @@ export default function AdminBookings() {
         </div>
 
         <div className="table-card">
-          {loading? (
+          {loading ? (
             <div className="table-loader">Loading bookings...</div>
-          ) : error? (
+          ) : error ? (
             <div className="table-error">
               <p>{error}</p>
-              <button onClick={fetchBookings}>Retry</button>
+              <button onClick={() => setFilter(filter)}>Retry</button>
             </div>
-          ) : bookings.length === 0? (
-            <div className="table-empty">
-              <p>No bookings found</p>
-            </div>
+          ) : bookings.length === 0 ? (
+            <div className="table-empty"><p>No bookings found</p></div>
           ) : (
             <div className="table-scroll">
               <table className="data-table">
@@ -91,51 +116,42 @@ export default function AdminBookings() {
                 <tbody>
                   {bookings.map(booking => (
                     <tr key={booking.id}>
-                      <td className="cell-text">#{booking.id}</td>
+                      <td className="cell-text">#{booking.id.slice(0, 6)}</td>
                       <td>
                         <div className="cell-stack">
-                          <p className="cell-primary">{booking.property_title}</p>
-                          <p className="cell-secondary">{booking.property_city}</p>
+                          <p className="cell-primary">{booking.propertyName || booking.property_title}</p>
+                          <p className="cell-secondary">{booking.propertyCity || booking.property_city}</p>
                         </div>
                       </td>
                       <td>
                         <div className="cell-stack">
-                          <p className="cell-primary">{booking.guest_name}</p>
-                          <p className="cell-secondary">{booking.guest_email}</p>
+                          <p className="cell-primary">{booking.travellerName || booking.guestName || booking.guest_name}</p>
+                          <p className="cell-secondary">{booking.travellerEmail || booking.guestEmail || booking.guest_email || booking.guestPhone}</p>
                         </div>
                       </td>
                       <td className="cell-text">
-                        {formatDate(booking.check_in)} - {formatDate(booking.check_out)}
+                        {formatDate(booking.checkIn || booking.check_in)} - {formatDate(booking.checkOut || booking.check_out)}
                       </td>
-                      <td className="cell-primary cell-bold">₦{booking.total_price?.toLocaleString()}</td>
+                      <td className="cell-primary cell-bold">
+                        {formatPrice(booking.totalPrice || booking.total_price || 0)}
+                      </td>
                       <td>
-                        <span className={`status-badge ${booking.status}`}>
-                          {booking.status}
-                        </span>
+                        <span className={`status-badge ${booking.status}`}>{booking.status}</span>
                       </td>
                       <td>
                         <div className="action-buttons">
                           {booking.status === 'pending' && (
                             <>
-                              <button
-                                className="action-link approve"
-                                onClick={() => handleStatusUpdate(booking.id, 'confirmed')}
-                              >
+                              <button className="action-link approve" onClick={() => handleStatusUpdate(booking.id, 'confirmed')}>
                                 Confirm
                               </button>
-                              <button
-                                className="action-link reject"
-                                onClick={() => handleStatusUpdate(booking.id, 'cancelled')}
-                              >
+                              <button className="action-link reject" onClick={() => handleStatusUpdate(booking.id, 'cancelled')}>
                                 Cancel
                               </button>
                             </>
                           )}
                           {booking.status === 'confirmed' && (
-                            <button
-                              className="action-link complete"
-                              onClick={() => handleStatusUpdate(booking.id, 'completed')}
-                            >
+                            <button className="action-link complete" onClick={() => handleStatusUpdate(booking.id, 'completed')}>
                               Complete
                             </button>
                           )}

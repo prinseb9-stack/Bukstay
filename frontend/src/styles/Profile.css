@@ -1,0 +1,224 @@
+/* ===== PROFILE PAGE ===== */
+
+.profile-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px 16px;
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+/* Header */
+.profile-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--brand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #000;
+  margin: 0 auto 16px;
+  overflow: hidden;
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-header h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.profile-email {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  margin-bottom: 12px;
+}
+
+/* Badges */
+.profile-badges {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 0.5rem 0;
+}
+
+.profile-badge {
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.profile-badge.country {
+  background: rgba(25, 118, 210, 0.1);
+  color: #1976d2;
+}
+
+/* Bio */
+.profile-bio {
+  margin-top: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+/* Sections */
+.profile-section {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.profile-section h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+/* Properties grid */
+.properties-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .properties-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.property-mini-card {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--bg-tertiary);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.property-mini-card:hover {
+  background: var(--bg-primary);
+  border-color: var(--brand);
+}
+
+.property-mini-card img {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.property-mini-card h4 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.property-mini-card p {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+/* Bookings list */
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.booking-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius);
+}
+
+.booking-info h3 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.booking-info p {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.booking-price {
+  font-weight: 700;
+  color: var(--brand);
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+/* Empty */
+.profile-empty {
+  text-align: center;
+  padding: 32px;
+  color: var(--text-secondary);
+}
+
+/* Loader */
+.profile-loader {
+  text-align: center;
+  padding: 32px;
+  color: var(--text-secondary);
+}
+
+/* Logout */
+.logout-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 24px;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.logout-btn:hover {
+  background: var(--error);
+  color: #fff;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .profile-container {
+    padding: 20px 12px;
+  }
+
+  .profile-section {
+    padding: 16px;
+  }
+}

@@ -1,7 +1,10 @@
-.traveller-bookings-container {
-  min-height: calc(100vh - 60px);
-  background: #f9fafb;
+/* ===== USER BOOKINGS ===== */
+
+.user-bookings-container {
+  min-height: 100vh;
+  background: var(--bg-primary);
   padding: 24px 0 40px;
+  transition: background 0.3s ease;
 }
 
 .bookings-wrapper {
@@ -11,12 +14,14 @@
 }
 
 .bookings-title {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #1f2937;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-primary);
   margin: 0 0 24px 0;
+  letter-spacing: -0.5px;
 }
 
+/* Tabs */
 .bookings-tabs {
   display: flex;
   gap: 8px;
@@ -30,40 +35,41 @@
   align-items: center;
   gap: 6px;
   padding: 10px 18px;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   font-weight: 600;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--text-secondary);
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s;
 }
 
 .tab-btn:hover {
-  border-color: #ff385c;
+  border-color: var(--brand);
+  color: var(--brand);
 }
 
 .tab-btn.active {
-  background: #ff385c;
-  color: #fff;
-  border-color: #ff385c;
+  background: var(--brand);
+  color: #000;
+  border-color: var(--brand);
 }
 
 .tab-count {
-  background: rgba(0,0,0,0.1);
-  padding: 2px 6px;
-  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
   font-size: 0.75rem;
-  min-width: 20px;
-  text-align: center;
+  font-weight: 700;
 }
 
 .tab-btn.active .tab-count {
-  background: rgba(255,255,255,0.3);
+  background: rgba(0, 0, 0, 0.2);
 }
 
+/* Booking list */
 .bookings-list {
   display: flex;
   flex-direction: column;
@@ -71,23 +77,24 @@
 }
 
 .booking-card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
   padding: 16px;
   display: flex;
   gap: 16px;
-  transition: box-shadow 0.2s;
+  transition: all 0.2s;
 }
 
 .booking-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: var(--shadow);
+  border-color: var(--brand);
 }
 
 .booking-image {
   width: 100px;
   height: 100px;
-  border-radius: 10px;
+  border-radius: var(--radius);
   object-fit: cover;
   flex-shrink: 0;
 }
@@ -97,6 +104,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-width: 0;
 }
 
 .booking-header {
@@ -108,12 +116,13 @@
 
 .booking-info {
   flex: 1;
+  min-width: 0;
 }
 
 .booking-property {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-primary);
   margin: 0 0 4px 0;
   line-height: 1.3;
 }
@@ -123,14 +132,15 @@
   align-items: center;
   gap: 4px;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin: 0;
 }
 
+/* Status */
 .booking-status {
   display: inline-block;
   padding: 6px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius);
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: capitalize;
@@ -138,39 +148,41 @@
 }
 
 .status-confirmed {
-  background: #d1fae5;
-  color: #065f46;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
 }
 
 .status-completed {
-  background: #e5e7eb;
-  color: #374151;
+  background: rgba(107, 114, 128, 0.15);
+  color: #6b7280;
 }
 
 .status-cancelled {
-  background: #fee2e2;
-  color: #991b1b;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
 }
 
 .status-pending {
-  background: #fef3c7;
-  color: #92400e;
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
 }
 
+/* Dates */
 .booking-dates {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 0.875rem;
-  color: #4b5563;
+  color: var(--text-secondary);
 }
 
+/* Footer */
 .booking-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding-top: 12px;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid var(--border);
 }
 
 .booking-price {
@@ -181,71 +193,76 @@
 
 .price-label {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .price-amount {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--brand);
 }
 
 .booking-guests {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
+/* Empty */
 .bookings-empty {
   text-align: center;
   padding: 60px 20px;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
 }
 
 .empty-icon {
-  color: #d1d5db;
+  color: var(--text-muted);
   margin-bottom: 16px;
-  display: flex;
-  justify-content: center;
 }
 
 .bookings-empty h2 {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--text-primary);
   margin: 0 0 8px 0;
 }
 
 .bookings-empty p {
-  color: #6b7280;
+  color: var(--text-secondary);
   margin: 0 0 24px 0;
 }
 
 .explore-btn {
   padding: 12px 24px;
-  background: #ff385c;
-  color: #fff;
+  background: var(--brand);
+  color: #000;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.15s;
 }
 
+.explore-btn:hover {
+  background: var(--brand-hover);
+}
+
+/* Loader */
 .bookings-loader {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 400px;
-  text-align: center;
+  color: var(--text-secondary);
 }
 
-.spinner {
+.bookings-loader .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid #e5e7eb;
-  border-top-color: #ff385c;
+  border: 3px solid var(--border);
+  border-top-color: var(--brand);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin-bottom: 16px;
@@ -253,6 +270,18 @@
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .booking-card {
+    flex-direction: column;
+  }
+
+  .booking-image {
+    width: 100%;
+    height: 180px;
+  }
 }
 
 @media (min-width: 640px) {

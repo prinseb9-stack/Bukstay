@@ -1,36 +1,48 @@
 import { useState, useEffect } from 'react'
-import api from '../../services/api'
+import { useAuth } from '../../context/AuthContext'
+import { useTheme } from '../../context/ThemeContext'
+import { useGeoCurrency } from '../../hooks/useGeo'
+import { collection, query, where, getDocs, orderBy } from 'firebase/firestore'
+import { db } from '../../lib/firebase'
 import '../../styles/HostBookings.css'
 
 const tabs = ['All', 'Upcoming', 'Completed', 'Cancelled']
 
 export default function HostBookings() {
+  const { user } = useAuth()
+  const { theme } = useTheme()
+  const { formatPrice } = useGeoCurrency()
+  
   const [activeTab, setActiveTab] = useState('All')
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
   const [filteredBookings, setFilteredBookings] = useState([])
 
   useEffect(() => {
+    const fetchBookings = async () => {
+      if (!user) return
+      
+      try {
+        setLoading(true)
+        const bookingsQuery = query(
+          collection(db, 'bookings'),
+          where('hostId', '==', user.uid),
+          orderBy('createdAt', 'desc')
+        )
+        const snap = await getDocs(bookingsQuery)
+        const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+        setBookings(data)
+      } catch (err) {
+        console.error('Failed to load bookings:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
     fetchBookings()
-  }, [])
+  }, [user])
 
   useEffect(() => {
-    filterBookings()
-  }, [activeTab, bookings])
-
-  const fetchBookings = async () => {
-    try {
-      setLoading(true)
-      const res = await api.get('/api/host/bookings')
-      setBookings(res.data)
-    } catch (err) {
-      console.error('Failed to load bookings:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const filterBookings = () => {
     if (activeTab === 'All') {
       setFilteredBookings(bookings)
       return
@@ -38,30 +50,31 @@ export default function HostBookings() {
 
     const now = new Date()
     const filtered = bookings.filter((booking) => {
-      const checkOut = new Date(booking.check_out)
-
-      if (activeTab === 'Upcoming') {
-        return checkOut >= now && booking.status === 'confirmed'
-      }
-      if (activeTab === 'Completed') {
-        return checkOut < now && booking.status === 'completed'
-      }
-      if (activeTab === 'Cancelled') {
-        return booking.status === 'cancelled'
-      }
+      const checkOut = new Date(booking.checkOut)
+      const checkIn = new Date(booking.checkIn)
+      if (activeTab === 'Upcoming') return checkIn >= now && booking.status === 'confirmed'
+      if (activeTab === 'Completed') return checkOut < now && (booking.status === 'completed' || booking.status === 'confirmed')
+      if (activeTab === 'Cancelled') return booking.status === 'cancelled'
       return true
     })
     setFilteredBookings(filtered)
-  }
+  }, [activeTab, bookings])
 
   const getStatusBadge = (status) => {
-    const statusMap = {
-      confirmed: 'confirmed',
-      completed: 'completed',
-      cancelled: 'cancelled',
-      pending: 'pending'
-    }
+    const statusMap = { confirmed: 'confirmed', completed: 'completed', cancelled: 'cancelled', pending: 'pending' }
     return statusMap[status] || 'default'
+  }
+
+  const getTabCount = (tab) => {
+    const now = new Date()
+    return bookings.filter(b => {
+      const checkOut = new Date(b.checkOut)
+      const checkIn = new Date(b.checkIn)
+      if (tab === 'Upcoming') return checkIn >= now && b.status === 'confirmed'
+      if (tab === 'Completed') return checkOut < now && (b.status === 'completed' || b.status === 'confirmed')
+      if (tab === 'Cancelled') return b.status === 'cancelled'
+      return false
+    }).length
   }
 
   if (loading) {
@@ -85,34 +98,22 @@ export default function HostBookings() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`tab-btn ${activeTab === tab? 'active' : ''}`}
+              className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
             >
               {tab}
-              {tab!== 'All' && (
-                <span className="tab-count">
-                  {bookings.filter(b => {
-                    const now = new Date()
-                    const checkOut = new Date(b.check_out)
-                    if (tab === 'Upcoming') return checkOut >= now && b.status === 'confirmed'
-                    if (tab === 'Completed') return checkOut < now && b.status === 'completed'
-                    if (tab === 'Cancelled') return b.status === 'cancelled'
-                    return false
-                  }).length}
-                </span>
-              )}
+              {tab !== 'All' && <span className="tab-count">{getTabCount(tab)}</span>}
             </button>
           ))}
         </div>
 
-        {filteredBookings.length === 0? (
+        {filteredBookings.length === 0 ? (
           <div className="bookings-empty">
             <div className="empty-icon">📅</div>
             <h2>No {activeTab.toLowerCase()} bookings</h2>
             <p>
               {activeTab === 'All'
-               ? 'Bookings will appear here once guests book your properties'
-                : `You don't have any ${activeTab.toLowerCase()} bookings yet`
-              }
+                ? 'Bookings will appear here once guests book your properties'
+                : `You don't have any ${activeTab.toLowerCase()} bookings yet`}
             </p>
           </div>
         ) : (
@@ -135,21 +136,21 @@ export default function HostBookings() {
                       <td>
                         <div className="guest-cell">
                           <img
-                            src={booking.guest_avatar || 'https://i.pravatar.cc/100'}
-                            alt={booking.guest_name}
+                            src={booking.guestAvatar || 'https://i.pravatar.cc/100'}
+                            alt={booking.travellerName}
                             className="guest-avatar"
                           />
-                          <span className="guest-name">{booking.guest_name}</span>
+                          <span className="guest-name">{booking.travellerName || 'Guest'}</span>
                         </div>
                       </td>
-                      <td className="property-cell">{booking.property_title}</td>
+                      <td className="property-cell">{booking.propertyName}</td>
                       <td className="dates-cell">
-                        {new Date(booking.check_in).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        {new Date(booking.checkIn).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                         {' → '}
-                        {new Date(booking.check_out).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        {new Date(booking.checkOut).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </td>
                       <td className="guests-cell">{booking.guests}</td>
-                      <td className="amount-cell">₦{booking.total_price?.toLocaleString()}</td>
+                      <td className="amount-cell">{formatPrice(booking.totalPrice)}</td>
                       <td>
                         <span className={`status-badge status-${getStatusBadge(booking.status)}`}>
                           {booking.status}
@@ -167,31 +168,30 @@ export default function HostBookings() {
                   <div className="booking-card-header">
                     <div className="guest-info">
                       <img
-                        src={booking.guest_avatar || 'https://i.pravatar.cc/100'}
-                        alt={booking.guest_name}
+                        src={booking.guestAvatar || 'https://i.pravatar.cc/100'}
+                        alt={booking.travellerName}
                         className="guest-avatar"
                       />
                       <div>
-                        <p className="guest-name">{booking.guest_name}</p>
-                        <p className="property-name">{booking.property_title}</p>
+                        <p className="guest-name">{booking.travellerName || 'Guest'}</p>
+                        <p className="property-name">{booking.propertyName}</p>
                       </div>
                     </div>
                     <span className={`status-badge status-${getStatusBadge(booking.status)}`}>
                       {booking.status}
                     </span>
                   </div>
-
                   <div className="booking-card-body">
                     <div className="booking-detail">
                       <span className="detail-label">Check-in</span>
                       <span className="detail-value">
-                        {new Date(booking.check_in).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        {new Date(booking.checkIn).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </span>
                     </div>
                     <div className="booking-detail">
                       <span className="detail-label">Check-out</span>
                       <span className="detail-value">
-                        {new Date(booking.check_out).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        {new Date(booking.checkOut).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </span>
                     </div>
                     <div className="booking-detail">
@@ -200,7 +200,7 @@ export default function HostBookings() {
                     </div>
                     <div className="booking-detail">
                       <span className="detail-label">Total</span>
-                      <span className="detail-value amount">₦{booking.total_price?.toLocaleString()}</span>
+                      <span className="detail-value amount">{formatPrice(booking.totalPrice)}</span>
                     </div>
                   </div>
                 </div>

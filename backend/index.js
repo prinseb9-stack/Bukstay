@@ -28,5 +28,5 @@ app.use('/api/admin', adminRoutes)
 app.use('/api/payments', paymentRoutes)
 app.use('/api/traveller', travellerRoutes)
 
-const PORT = process.env.PORT || 8000
-app.listen(PORT, '0.0.0.0', () => console.log(`Running on ${PORT}`))
+const PORT = process.env.PORT || 10000
+app.listen(PORT, () => { console.log(`Running on ${PORT}`);})

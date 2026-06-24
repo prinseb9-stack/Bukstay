@@ -6,14 +6,9 @@ const getUser = async (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1]
     if (!token) return res.status(401).json({ error: 'No token' })
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    const { data: user, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', decoded.userId)
-    .single()
+    const { data: { user }, error } = await supabase.auth.getUser(token)
+    if (error || !user) return res.status(401).json({ error: 'Invalid token' })
 
-    if (error ||!user) return res.status(401).json({ error: 'User not found' })
     req.user = user
     next()
   } catch (e) {

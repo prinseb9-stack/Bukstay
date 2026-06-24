@@ -1,0 +1,186 @@
+/* ===== HOST ONBOARDING ===== */
+
+.host-onboard-wrap {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.host-onboard-card {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-xl);
+  padding: 40px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+/* Header */
+.host-onboard-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.host-onboard-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.host-onboard-header p {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Error */
+.host-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--error);
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+/* Form */
+.host-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form-group input {
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 15px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+}
+
+.form-group small {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Buttons */
+.host-btn-primary {
+  padding: 14px;
+  background: #059669;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.host-btn-primary:hover:not(:disabled) {
+  background: #047857;
+}
+
+.host-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.host-btn-secondary {
+  padding: 14px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.host-btn-secondary:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* OTP */
+.host-otp-info {
+  background: rgba(5, 150, 105, 0.1);
+  border: 1px solid rgba(5, 150, 105, 0.2);
+  padding: 16px;
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.host-otp-info p {
+  margin: 0;
+  color: #059669;
+  font-weight: 500;
+}
+
+/* Success */
+.host-success {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.host-success-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.host-success h2 {
+  font-size: 24px;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.host-success p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .host-onboard-card {
+    padding: 24px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .host-onboard-header h1 {
+    font-size: 24px;
+  }
+}

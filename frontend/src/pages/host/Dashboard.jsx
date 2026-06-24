@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import api from '../../services/api'
+import { useTheme } from '../../context/ThemeContext'
+import { useGeoCurrency } from '../../hooks/useGeo'
+import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore'
+import { db } from '../../lib/firebase'
 import { TrendingUp, Calendar, Home, Star, Plus } from 'lucide-react'
 import '../../styles/HostDashboard.css'
 
 export default function HostDashboard() {
-  const { user } = useAuth()
+  const { user, userProfile } = useAuth()
+  const { theme } = useTheme()
+  const { formatPrice } = useGeoCurrency()
   const navigate = useNavigate()
+  
   const [data, setData] = useState({
     stats: {
       total_earnings: 0,
@@ -21,17 +27,59 @@ export default function HostDashboard() {
 
   useEffect(() => {
     const fetchDashboard = async () => {
+      if (!user) return
+      
       try {
-        const res = await api.get('/api/host/dashboard')
-        setData(res.data)
+        setLoading(true)
+        const now = new Date()
+
+        const propsQuery = query(
+          collection(db, 'properties'),
+          where('hostId', '==', user.uid)
+        )
+        const propsSnap = await getDocs(propsQuery)
+        const properties = propsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+
+        const bookingsQuery = query(
+          collection(db, 'bookings'),
+          where('hostId', '==', user.uid)
+        )
+        const bookingsSnap = await getDocs(bookingsQuery)
+        const allBookings = bookingsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+
+        const completedBookings = allBookings.filter(b => b.status === 'completed')
+        const total_earnings = completedBookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0)
+
+        const active_bookings = allBookings.filter(b => {
+          const checkIn = new Date(b.checkIn)
+          const checkOut = new Date(b.checkOut)
+          return b.status === 'confirmed' && checkIn <= now && now <= checkOut
+        }).length
+
+        const total_properties = properties.length
+
+        const avg_rating = properties.length > 0
+          ? properties.reduce((sum, p) => sum + (p.rating || 0), 0) / properties.length
+          : 0
+
+        const recent_bookings = allBookings
+          .sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0))
+          .slice(0, 5)
+
+        setData({
+          stats: { total_earnings, active_bookings, total_properties, avg_rating },
+          recent_bookings
+        })
+
       } catch (err) {
         console.error('Failed to load dashboard:', err)
       } finally {
         setLoading(false)
       }
     }
+
     fetchDashboard()
-  }, [])
+  }, [user])
 
   if (loading) {
     return (
@@ -46,26 +94,26 @@ export default function HostDashboard() {
 
   const statsCards = [
     {
-      label: 'Total Earnings',
-      value: `₦${data.stats.total_earnings?.toLocaleString() || 0}`,
+      label: 'Total Revenue',
+      value: formatPrice(data.stats.total_earnings),
       icon: <TrendingUp size={20} />,
       path: '/host/earnings'
     },
     {
       label: 'Active Bookings',
-      value: data.stats.active_bookings || 0,
+      value: data.stats.active_bookings,
       icon: <Calendar size={20} />,
       path: '/host/bookings'
     },
     {
       label: 'Properties',
-      value: data.stats.total_properties || 0,
+      value: data.stats.total_properties,
       icon: <Home size={20} />,
       path: '/host/properties'
     },
     {
       label: 'Avg Rating',
-      value: data.stats.avg_rating?.toFixed(1) || '0.0',
+      value: data.stats.avg_rating.toFixed(1),
       icon: <Star size={20} />,
       path: '/host/properties'
     }
@@ -77,7 +125,7 @@ export default function HostDashboard() {
         <div className="dashboard-header">
           <div>
             <h1 className="dashboard-title">Host Dashboard</h1>
-            <p className="dashboard-welcome">Welcome back, {user?.full_name}</p>
+            <p className="dashboard-welcome">Welcome back, {userProfile?.fullName}</p>
           </div>
           <button 
             className="add-property-btn"
@@ -108,10 +156,7 @@ export default function HostDashboard() {
           <div className="content-card">
             <div className="card-header">
               <h2>Recent Bookings</h2>
-              <button 
-                className="view-all-btn"
-                onClick={() => navigate('/host/bookings')}
-              >
+              <button className="view-all-btn" onClick={() => navigate('/host/bookings')}>
                 View all
               </button>
             </div>
@@ -126,17 +171,17 @@ export default function HostDashboard() {
                 {data.recent_bookings.map((booking) => (
                   <div key={booking.id} className="booking-item">
                     <div className="booking-info">
-                      <p className="booking-guest">{booking.guest_name}</p>
-                      <p className="booking-property">{booking.property_title}</p>
+                      <p className="booking-guest">{booking.travellerName || 'Guest'}</p>
+                      <p className="booking-property">{booking.propertyName}</p>
                       <p className="booking-dates">
-                        {new Date(booking.check_in).toLocaleDateString()} - {new Date(booking.check_out).toLocaleDateString()}
+                        {new Date(booking.checkIn).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        {' - '}
+                        {new Date(booking.checkOut).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </p>
                     </div>
                     <div className="booking-meta">
-                      <p className="booking-amount">₦{booking.total_price?.toLocaleString()}</p>
-                      <span className={`booking-status status-${booking.status}`}>
-                        {booking.status}
-                      </span>
+                      <p className="booking-amount">{formatPrice(booking.totalPrice)}</p>
+                      <span className={`booking-status status-${booking.status}`}>{booking.status}</span>
                     </div>
                   </div>
                 ))}
@@ -147,28 +192,16 @@ export default function HostDashboard() {
           <div className="content-card">
             <h2>Quick Actions</h2>
             <div className="actions-list">
-              <button
-                className="action-btn primary"
-                onClick={() => navigate('/host/properties/new')}
-              >
+              <button className="action-btn primary" onClick={() => navigate('/host/properties/new')}>
                 Add New Property
               </button>
-              <button
-                className="action-btn"
-                onClick={() => navigate('/host/bookings')}
-              >
+              <button className="action-btn" onClick={() => navigate('/host/bookings')}>
                 Manage Bookings
               </button>
-              <button
-                className="action-btn"
-                onClick={() => navigate('/host/earnings')}
-              >
+              <button className="action-btn" onClick={() => navigate('/host/earnings')}>
                 View Earnings
               </button>
-              <button
-                className="action-btn"
-                onClick={() => navigate('/host/properties')}
-              >
+              <button className="action-btn" onClick={() => navigate('/host/properties')}>
                 Edit Listings
               </button>
             </div>

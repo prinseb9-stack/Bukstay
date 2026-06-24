@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import '../styles/Navbar.css'
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false)
-  const { user, logout } = useAuth()
+  const { userProfile, logout } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -17,7 +19,7 @@ const Navbar = () => {
   const closeMenu = () => setMenuOpen(false)
 
   return (
-    <nav className="navbar">
+    <nav className={`navbar ${theme}`}>
       <div className="nav-container">
         <Link to="/" className="nav-logo" onClick={closeMenu}>
           BukStay
@@ -41,26 +43,26 @@ const Navbar = () => {
             Stays
           </Link>
 
-          {user ? (
+          <button 
+            onClick={toggleTheme} 
+            className="nav-link theme-toggle"
+            aria-label="Toggle theme"
+          >
+            {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
+          </button>
+
+          {userProfile ? (
             <>
-              {user.role === 'host' && (
-                <Link to="/host/dashboard" className="nav-link" onClick={closeMenu}>
-                  Host Dashboard
-                </Link>
-              )}
-              {user.role === 'admin' && (
-                <Link to="/admin/dashboard" className="nav-link" onClick={closeMenu}>
+              {userProfile.role === 'admin' && (
+                <Link to="/admin-panel-2025/dashboard" className="nav-link nav-admin" onClick={closeMenu}>
                   Admin
                 </Link>
               )}
-              {user.role === 'traveller' && (
-                <Link to="/traveller" className="nav-link" onClick={closeMenu}>
+              {userProfile.role === 'user' && (
+                <Link to="/User/dashboard" className="nav-link nav-dashboard" onClick={closeMenu}>
                   My Trips
                 </Link>
               )}
-              <Link to="/profile" className="nav-link" onClick={closeMenu}>
-                Profile
-              </Link>
               <button className="nav-link nav-logout" onClick={handleLogout}>
                 Logout
               </button>

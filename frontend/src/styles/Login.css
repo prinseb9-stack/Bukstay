@@ -1,87 +1,119 @@
+/* ===== LOGIN PAGE ===== */
+
 .login-wrap {
+  min-height: 100vh;
   min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background: #0f0f1a;
+  background: var(--bg-primary);
+  transition: background 0.3s ease;
 }
 
 .login-card {
-  background: #1a1a2e;
+  background: var(--bg-secondary);
   padding: 40px 28px;
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
 }
 
+/* Logo */
 .login-logo {
-  color: #f5a623;
+  color: var(--brand);
   text-align: center;
   font-size: 30px;
   margin-bottom: 4px;
 }
 
 .login-sub {
-  color: #888;
+  color: var(--text-secondary);
   text-align: center;
   margin-bottom: 28px;
   font-size: 15px;
 }
 
+/* Input */
 .login-input {
   width: 100%;
   padding: 13px;
   margin-bottom: 14px;
-  background: #0f0f1a;
-  border: 1px solid #2a2a3e;
-  border-radius: 10px;
-  color: #fff;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
   font-size: 15px;
-  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s;
 }
 
 .login-input:focus {
-  outline: none;
-  border-color: #f5a623;
+  border-color: var(--brand);
 }
 
+.login-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Button */
 .login-btn {
   width: 100%;
   padding: 14px;
-  background: #f5a623;
+  background: var(--brand);
   color: #000;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius);
   font-size: 16px;
-  font-weight: bold;
+  font-weight: 700;
   cursor: pointer;
+  transition: all 0.2s;
   margin-top: 4px;
+}
+
+.login-btn:hover:not(:disabled) {
+  background: var(--brand-hover);
 }
 
 .login-btn:disabled {
   opacity: 0.6;
+  cursor: not-allowed;
 }
 
+/* Error */
 .login-err {
-  color: #ff6b6b;
+  color: var(--error);
   margin-bottom: 12px;
   text-align: center;
   font-size: 14px;
-  background: rgba(255,107,107,0.1);
+  background: rgba(239, 68, 68, 0.1);
   padding: 10px;
-  border-radius: 8px;
+  border-radius: var(--radius);
 }
 
+/* Footer */
 .login-foot {
-  color: #888;
+  color: var(--text-secondary);
   text-align: center;
   margin-top: 20px;
   font-size: 14px;
 }
 
 .login-foot a {
-  color: #f5a623;
-  font-weight: bold;
+  color: var(--brand);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.login-foot a:hover {
+  text-decoration: underline;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 32px 20px;
+  }
 }

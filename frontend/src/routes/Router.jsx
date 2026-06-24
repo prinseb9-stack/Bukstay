@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 // Layouts
 import MainLayout from '../layouts/MainLayout'
 import HostLayout from '../layouts/HostLayout'
-import TravellerLayout from '../layouts/TravellerLayout'
+import TravelerLayout from '../layouts/TravelerLayout'
 import AdminLayout from '../layouts/AdminLayout'
 
 // Public pages
@@ -16,13 +16,20 @@ import Property from '../pages/Property'
 // Auth pages
 import Login from '../pages/auth/Login'
 import Register from '../pages/auth/Register'
+import Onboarding from '../pages/auth/Onboarding'
+import ClaimAccount from '../pages/auth/ClaimAccount'
 
-// Traveller pages
-import TravellerDashboard from '../pages/Traveller/Dashboard'
-import TravellerBookings from '../pages/Traveller/Bookings'
-import TravellerSaved from '../pages/Traveller/Saved'
-import TravellerWallet from '../pages/Traveller/Wallet'
-import Checkout from '../pages/Traveller/Checkout'
+// Secret pages
+import SecretAdminAccess from '../pages/admin/SecretAdminAccess'
+import SecretHostOnboard from '../pages/host/SecretHostOnboard'
+
+// Traveler pages
+import TravelerDashboard from '../pages/traveler/Dashboard'
+import TravelerBookings from '../pages/traveler/Bookings'
+import TravelerSaved from '../pages/traveler/Saved'
+import TravelerWallet from '../pages/traveler/Wallet'
+import Checkout from '../pages/traveler/Checkout'
+import TravelerProfile from '../pages/traveler/Profile'
 
 // Host pages
 import HostDashboard from '../pages/host/Dashboard'
@@ -39,8 +46,8 @@ import AdminBookings from '../pages/admin/Bookings'
 import AdminPayouts from '../pages/admin/Payouts'
 
 // Protected route wrapper
-function ProtectedRoute({ children, requireHost = false, requireAdmin = false }) {
-  const { user, loading } = useAuth()
+function ProtectedRoute({ children, requireRole }) {
+  const { userProfile, loading } = useAuth()
 
   if (loading) {
     return (
@@ -50,16 +57,18 @@ function ProtectedRoute({ children, requireHost = false, requireAdmin = false })
     )
   }
 
-  if (!user) {
+  if (!userProfile) {
     return <Navigate to="/login" replace />
   }
 
-  if (requireHost && user.role !== 'host') {
-    return <Navigate to="/traveller/dashboard" replace />
-  }
-
-  if (requireAdmin && user.role !== 'admin') {
-    return <Navigate to="/" replace />
+  if (requireRole && userProfile.role !== requireRole) {
+    const roleRedirects = {
+      admin: '/admin/dashboard',
+      host: '/host/dashboard',
+      traveller: '/traveller/dashboard',
+      guest: '/'
+    }
+    return <Navigate to={roleRedirects[userProfile.role] || '/'} replace />
   }
 
   return children
@@ -72,40 +81,50 @@ export default function Router() {
         {/* Auth routes - no layout */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/claim-account" element={<ClaimAccount />} />
 
-        {/* Public routes - MainLayout with Navbar + Footer */}
+        {/* SECRET ROUTES - No links anywhere */}
+        <Route path="/admin-panel-2025" element={<SecretAdminAccess />} />
+        <Route path="/host-onboard-9x7k2p" element={<SecretHostOnboard />} />
+
+        {/* Public routes - MainLayout */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
           <Route path="/discover" element={<Discover />} />
           <Route path="/stays" element={<Stays />} />
           <Route path="/stays/:id" element={<Property />} />
+          {/* GUEST CHECKOUT - PUBLIC */}
+          <Route path="/checkout/:id" element={<Checkout />} />
         </Route>
 
         {/* Traveller routes - protected */}
         <Route
           path="/traveller"
           element={
-            <ProtectedRoute>
-              <TravellerLayout />
+            <ProtectedRoute requireRole="traveller">
+              <TravelerLayout />
             </ProtectedRoute>
           }
         >
-          <Route path="dashboard" element={<TravellerDashboard />} />
-          <Route path="bookings" element={<TravellerBookings />} />
-          <Route path="saved" element={<TravellerSaved />} />
-          <Route path="wallet" element={<TravellerWallet />} />
-          <Route path="checkout/:id" element={<Checkout />} />
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<TravelerDashboard />} />
+          <Route path="bookings" element={<TravelerBookings />} />
+          <Route path="saved" element={<TravelerSaved />} />
+          <Route path="wallet" element={<TravelerWallet />} />
+          <Route path="profile" element={<TravelerProfile />} />
         </Route>
 
         {/* Host routes - protected + require host role */}
         <Route
           path="/host"
           element={
-            <ProtectedRoute requireHost>
+            <ProtectedRoute requireRole="host">
               <HostLayout />
             </ProtectedRoute>
           }
         >
+          <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<HostDashboard />} />
           <Route path="properties" element={<HostProperties />} />
           <Route path="properties/new" element={<HostPropertyForm />} />
@@ -118,11 +137,12 @@ export default function Router() {
         <Route
           path="/admin"
           element={
-            <ProtectedRoute requireAdmin>
+            <ProtectedRoute requireRole="admin">
               <AdminLayout />
             </ProtectedRoute>
           }
         >
+          <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="properties" element={<AdminProperties />} />

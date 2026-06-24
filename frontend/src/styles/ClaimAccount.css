@@ -1,0 +1,197 @@
+/* ===== CLAIM ACCOUNT PAGE ===== */
+
+.claim-wrap {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.claim-card {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-xl);
+  padding: 40px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+/* Header */
+.claim-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.claim-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.claim-header p {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Error */
+.claim-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--error);
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+/* Form */
+.claim-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.claim-info {
+  background: rgba(16, 185, 129, 0.1);
+  padding: 16px;
+  border-radius: var(--radius);
+  text-align: center;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.claim-info p {
+  margin: 0;
+  color: var(--success);
+  font-weight: 500;
+}
+
+/* Bookings preview */
+.claim-bookings {
+  background: var(--bg-tertiary);
+  padding: 12px;
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+}
+
+.claim-booking-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.claim-booking-item:last-child {
+  border-bottom: none;
+}
+
+/* Form groups */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form-group input {
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 15px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  border-color: #0891b2;
+  box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.15);
+}
+
+.form-group small {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Buttons */
+.claim-btn-primary {
+  padding: 14px;
+  background: #0891b2;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.claim-btn-primary:hover:not(:disabled) {
+  background: #0e7490;
+}
+
+.claim-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.claim-btn-secondary {
+  padding: 14px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.claim-btn-secondary:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* Success */
+.claim-success {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.claim-success-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.claim-success h2 {
+  font-size: 24px;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.claim-success p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .claim-card {
+    padding: 24px;
+  }
+
+  .claim-header h1 {
+    font-size: 24px;
+  }
+}

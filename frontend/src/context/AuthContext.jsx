@@ -1,89 +1,246 @@
-import { createContext, useContext, useEffect, useState } from 'react'
-import axios from 'axios'
+import { createContext, useContext, useEffect, useState } from "react"
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  updateProfile
+} from "firebase/auth"
+import {
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  serverTimestamp
+} from "firebase/firestore"
+import {
+  auth,
+  db,
+  googleProvider,
+  appleProvider
+} from "../lib/firebase"
 
 const AuthContext = createContext()
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+export const useAuth = () => {
+  const context = useContext(AuthContext)
+  if (!context) {
+    throw new Error("useAuth must be used inside AuthProvider")
+  }
+  return context
+}
 
-export function AuthProvider({ children }) {
+const getErrorMessage = (code) => {
+  switch(code) {
+    case "auth/email-already-in-use":
+      return "This email is already registered"
+    case "auth/invalid-credential":
+      return "Invalid email or password"
+    case "auth/weak-password":
+      return "Password must be at least 6 characters"
+    case "auth/popup-closed-by-user":
+      return "Sign in cancelled"
+    default:
+      return "Something went wrong"
+  }
+}
+
+export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
-  const [token, setToken] = useState(null)
+  const [userProfile, setUserProfile] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('bukstay-user')
-    const storedToken = localStorage.getItem('bukstay-token')
-    
-    if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser))
-      setToken(storedToken)
-      axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`
+  const createUserDocument = async (firebaseUser, role = "user") => {
+    const userRef = doc(db, "users", firebaseUser.uid)
+    const snap = await getDoc(userRef)
+
+    if (!snap.exists()) {
+      const data = {
+        uid: firebaseUser.uid,
+        fullName: firebaseUser.displayName || "",
+        email: firebaseUser.email,
+        avatar: firebaseUser.photoURL || "",
+        role,
+        phone: "",
+        bio: "",
+        country: "",
+        currency: "USD",
+        onboarded: false,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }
+      await setDoc(userRef, data)
+      return data
     }
-    setLoading(false)
+    return { id: snap.id, ...snap.data() }
+  }
+
+  const loadProfile = async (uid) => {
+    const snap = await getDoc(doc(db, "users", uid))
+    if (snap.exists()) {
+      return { id: snap.id, ...snap.data() }
+    }
+    return null
+  }
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser)
+      if (currentUser) {
+        const profile = await loadProfile(currentUser.uid)
+        setUserProfile(profile)
+      } else {
+        setUserProfile(null)
+      }
+      setLoading(false)
+    })
+    return unsubscribe
   }, [])
 
+  // Regular register
+  const register = async (name, email, password, role = "user") => {
+    try {
+      const result = await createUserWithEmailAndPassword(auth, email, password)
+      await updateProfile(result.user, { displayName: name })
+      const profile = await createUserDocument(result.user, role)
+      return { success: true, role: profile.role, user: profile }
+    } catch (error) {
+      return { success: false, error: getErrorMessage(error.code) }
+    }
+  }
+
+  // Regular login — blocks admins, allows users & hosts
   const login = async (email, password) => {
     try {
-      const { data } = await axios.post(`${API_URL}/api/auth/login`, { email, password })
-      setUser(data.user)
-      setToken(data.token)
-      localStorage.setItem('bukstay-user', JSON.stringify(data.user))
-      localStorage.setItem('bukstay-token', data.token)
-      axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
-      return { success: true }
+      const result = await signInWithEmailAndPassword(auth, email, password)
+      const profile = await loadProfile(result.user.uid)
+      
+      if (!profile) {
+        await signOut(auth)
+        return { success: false, error: "User profile not found" }
+      }
+
+      // Block admins from regular login
+      if (profile.role === "admin") {
+        await signOut(auth)
+        return { success: false, error: "Please use the admin portal" }
+      }
+
+      return { success: true, role: profile.role, user: profile }
     } catch (error) {
-      return { success: false, error: error.response?.data?.error || 'Login failed' }
+      return { success: false, error: getErrorMessage(error.code) }
     }
   }
 
-  const register = async (name, email, password, role = 'traveler') => {
+  // Host login — blocks users, allows hosts & admins
+  const loginHost = async (email, password) => {
     try {
-      const { data } = await axios.post(`${API_URL}/api/auth/register`, { name, email, password, role })
-      setUser(data.user)
-      setToken(data.token)
-      localStorage.setItem('bukstay-user', JSON.stringify(data.user))
-      localStorage.setItem('bukstay-token', data.token)
-      axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
-      return { success: true }
+      const result = await signInWithEmailAndPassword(auth, email, password)
+      const profile = await loadProfile(result.user.uid)
+      
+      if (!profile) {
+        await signOut(auth)
+        return { success: false, error: "User profile not found" }
+      }
+
+      // Block regular users from host login
+      if (profile.role === "user") {
+        await signOut(auth)
+        return { success: false, error: "This login is for hosts only. Please use the traveller app." }
+      }
+
+      return { success: true, role: profile.role, user: profile }
     } catch (error) {
-      return { success: false, error: error.response?.data?.error || 'Registration failed' }
+      return { success: false, error: getErrorMessage(error.code) }
     }
   }
 
-  const logout = () => {
-    setUser(null)
-    setToken(null)
-    localStorage.removeItem('bukstay-user')
-    localStorage.removeItem('bukstay-token')
-    delete axios.defaults.headers.common['Authorization']
+  // Admin login — only allows admins
+  const loginAdmin = async (email, password) => {
+    try {
+      const result = await signInWithEmailAndPassword(auth, email, password)
+      const profile = await loadProfile(result.user.uid)
+      
+      if (!profile) {
+        await signOut(auth)
+        return { success: false, error: "User profile not found" }
+      }
+
+      // Only allow admins
+      if (profile.role !== "admin") {
+        await signOut(auth)
+        return { success: false, error: "Access denied. Admin accounts only." }
+      }
+
+      return { success: true, role: profile.role, user: profile }
+    } catch (error) {
+      return { success: false, error: getErrorMessage(error.code) }
+    }
   }
 
-  const updateUser = (newData) => {
-    const updated = { ...user, ...newData }
-    setUser(updated)
-    localStorage.setItem('bukstay-user', JSON.stringify(updated))
+  const loginWithGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider)
+      const profile = await createUserDocument(result.user)
+      
+      if (profile.role === "admin") {
+        await signOut(auth)
+        return { success: false, error: "Please use the admin portal" }
+      }
+
+      return { success: true, role: profile.role, user: profile }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  }
+
+  const loginWithApple = async () => {
+    try {
+      const result = await signInWithPopup(auth, appleProvider)
+      const profile = await createUserDocument(result.user)
+      
+      if (profile.role === "admin") {
+        await signOut(auth)
+        return { success: false, error: "Please use the admin portal" }
+      }
+
+      return { success: true, role: profile.role, user: profile }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  }
+
+  const logout = async () => {
+    await signOut(auth)
+  }
+
+  const updateUserProfile = async (data) => {
+    if (!user) return
+    await updateDoc(doc(db, "users", user.uid), { ...data, updatedAt: serverTimestamp() })
+    const updated = await loadProfile(user.uid)
+    setUserProfile(updated)
   }
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      token, 
-      loading, 
-      login, 
-      register, 
-      logout, 
-      updateUser,
-      isAuthenticated: !!user,
-      isHost: user?.role === 'host' || user?.role === 'both',
-      isAdmin: user?.role === 'admin'
+    <AuthContext.Provider value={{
+      user,
+      userProfile,
+      loading,
+      register,
+      login,
+      loginHost,
+      loginAdmin,
+      loginWithGoogle,
+      loginWithApple,
+      logout,
+      updateUserProfile,
+      updateUser: updateUserProfile,
+      isAdmin: userProfile?.role === "admin",
+      isHost: userProfile?.role === "host",
+      isUser: userProfile?.role === "user"
     }}>
       {children}
     </AuthContext.Provider>
   )
-}
-
-export const useAuth = () => {
-  const context = useContext(AuthContext)
-  if (!context) throw new Error('useAuth must be used within AuthProvider')
-  return context
 }

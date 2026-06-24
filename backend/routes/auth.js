@@ -1,53 +1,77 @@
 const express = require('express')
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
-const supabase = require('../db/supabase')
+
 const { getUser } = require('../middleware/auth')
+
 const router = express.Router()
 
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
+)
+
+// Register
 router.post('/register', async (req, res) => {
   const { name, email, password, role = 'traveler' } = req.body
-
   if (!name || !email || !password) {
-    return res.status(400).json({ error: 'Name, email and password are required' })
+    return res.status(400).json({ error: 'All fields are required' })
   }
-
-  const { data: existing } = await supabase.from('users').select('id').eq('email', email).single()
-  if (existing) return res.status(400).json({ error: 'Email already exists' })
-
-  const password_hash = await bcrypt.hash(password, 10)
-  const { data: user, error } = await supabase
-    .from('users')
-    .insert({ name, email, password_hash, role })
-    .select()
-    .single()
-
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { name, role } }
+  })
   if (error) return res.status(400).json({ error: error.message })
 
-  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' })
-  res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } })
+  // Save to users table
+  await supabase.from('users').insert({
+    id: data.user.id,
+    name,
+    email,
+    role,
+    traveler_mode: role === 'traveler' || role === 'both',
+    host_mode: role === 'host' || role === 'both'
+  })
+
+  res.json({
+    token: data.session?.access_token,
+    user: { id: data.user.id, name, email, role }
+  })
 })
 
+// Login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body
-
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' })
   }
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (error) return res.status(401).json({ error: error.message })
 
-  const { data: user } = await supabase.from('users').select('*').eq('email', email).single()
+  const { data: profile } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', data.user.id)
+    .single()
 
-  if (!user || !await bcrypt.compare(password, user.password_hash)) {
-    return res.status(401).json({ error: 'Invalid credentials' })
-  }
-
-  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' })
-  res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } })
+  res.json({
+    token: data.session.access_token,
+    user: {
+      id: data.user.id,
+      name: profile?.name,
+      email: data.user.email,
+      role: profile?.role
+    }
+  })
 })
 
-router.get('/me', getUser, (req, res) => {
-  const { id, name, email, role, bio, country, travel_style } = req.user
-  res.json({ id, name, email, role, bio, country, travel_style })
+// Get current user
+router.get('/me', getUser, async (req, res) => {
+  const { data: profile } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', req.user.id)
+    .single()
+  res.json(profile)
 })
 
 module.exports = router
