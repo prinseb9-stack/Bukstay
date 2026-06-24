@@ -31,22 +31,20 @@ export default defineConfig({
     port: 4173
   },
 
-  // Build config
-  build: {
+build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    sourcemap: false, // Set to true if you need to debug prod
+    sourcemap: false,
     minify: 'esbuild',
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Split vendor code for better caching
-          react: ['react', 'react-dom', 'react-router-dom'],
-          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+        manualChunks(id) {
+          if (id.includes('node_modules/react') || id.includes('node_modules/scheduler')) return 'react'
+          if (id.includes('node_modules/firebase')) return 'firebase'
+          if (id.includes('node_modules')) return 'vendor'
         }
       }
     },
-    // Increase chunk size warning limit
     chunkSizeWarningLimit: 1000
   },
 
